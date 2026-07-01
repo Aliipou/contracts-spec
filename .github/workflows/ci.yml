@@ -13,8 +13,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Install (dev)
-        run: python -m pip install -e ".[dev]"
+      - name: Install dev tools
+        # contracts-spec is data + tests, not an installable package — just the
+        # validator and the quality tools. pytest/ruff read their config from
+        # pyproject.toml directly, no install of the project needed.
+        run: python -m pip install "jsonschema>=4.0" "pytest>=8.0" "ruff>=0.6"
       - name: Lint (ruff)
         run: ruff check tests
       - name: Validate contracts (schemas + examples + frozen invariants)
