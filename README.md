@@ -22,19 +22,24 @@ non-negotiable:
 
 ## Layout
 
+Installable package `decision_os_contracts` (distribution `decision-os-contracts`),
+consumed by every other repo (see `INTEGRATION.md`).
+
 ```
 contracts-spec/
-  schemas/
-    action.schema.json            # INPUT to the kernel
-    decision.schema.json          # OUTPUT of the kernel — the SINGLE decision contract
-    capability_token.schema.json  # the credential the kernel mints on a permitting decision
-    audit_entry.schema.json       # one hash-chained audit record
-    event.schema.json             # an event on the system event stream
-  policies/
-    dsl_spec.md                   # the purpose-binding policy DSL (spec, not code)
+  decision_os_contracts/          # the installable package
+    __init__.py                   # validate(), load_schema(), __version__
+    schemas/
+      action.schema.json          # INPUT to the kernel
+      decision.schema.json        # OUTPUT — the SINGLE decision contract (ALLOW/DENY/LIMIT/CONTAIN/DEFER)
+      capability_token.schema.json# credential the kernel mints on a permitting decision
+      audit_entry.schema.json     # one hash-chained audit record
+      event.schema.json           # an event on the system event stream
+    conformance/                  # shared rule A/B enforcers + validate()
+  policies/dsl_spec.md            # the purpose-binding policy DSL (spec, not code)
   examples/                       # one valid instance per schema (CI validates these)
-  tests/                          # schema well-formedness + example validation
-  DEPENDENCY_RULES.md             # the golden rules every repo's CI must enforce
+  tests/                          # schema well-formedness + example validation + conformance
+  DEPENDENCY_RULES.md · CONTAINMENT.md · INTEGRATION.md
   VERSION                         # frozen contract version (semver)
 ```
 

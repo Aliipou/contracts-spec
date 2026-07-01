@@ -1,8 +1,8 @@
 name: ci
 
-# contracts-spec ships no logic, but its artifacts are the root of truth for the
-# whole Decision OS. CI guarantees every schema is well-formed and every example
-# validates — so no downstream repo ever pins to a broken contract.
+# contracts-spec is now the installable `decision-os-contracts` package (the root
+# of truth). CI installs it editable, validates every schema/example, and runs
+# the shared conformance enforcers against itself.
 on: [push, pull_request]
 
 jobs:
@@ -13,16 +13,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Install dev tools
-        # contracts-spec is data + tests, not an installable package — just the
-        # validator and the quality tools. pytest/ruff read their config from
-        # pyproject.toml directly, no install of the project needed.
-        run: python -m pip install "jsonschema>=4.0" "pytest>=8.0" "ruff>=0.6"
+      - name: Install (editable, with dev tools)
+        run: python -m pip install -e ".[dev]"
       - name: Lint (ruff)
-        run: ruff check tests conformance
-      - name: Self-check enforcers (rules A & B must run clean on this repo)
-        run: |
-          python -m conformance.check_authority --roots conformance
-          python -m conformance.check_imports --policy conformance/self_policy.json
+        run: ruff check decision_os_contracts tests
       - name: Validate contracts (schemas + examples + frozen invariants)
         run: pytest -q
+      - name: Self-check enforcers (rules A & B run clean on this repo)
+        run: |
+          python -m decision_os_contracts.conformance.check_authority --roots decision_os_contracts/conformance
+          python -m decision_os_contracts.conformance.check_imports --policy decision_os_contracts/conformance/self_policy.json

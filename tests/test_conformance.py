@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from conformance import check_authority, check_imports, validate
+from decision_os_contracts.conformance import check_authority, check_imports, validate
 
 
 def _write(root: Path, rel: str, src: str) -> None:

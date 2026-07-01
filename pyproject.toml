@@ -1,17 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
-name = "contracts-spec"
-version = "0.1.0"
-description = "The root-of-truth contracts (schemas, decision contract, event formats, policy DSL) for the Decision OS. No logic — INPUT to and OUTPUT of the kernel only."
+name = "decision-os-contracts"
+version = "0.2.0"
+description = "The installable root-of-truth contracts for the Decision OS: schemas, the single decision contract, the shared conformance enforcers, and validation helpers. Every repo depends on this; it depends on nothing."
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "PolyForm-Noncommercial-1.0.0" }
 authors = [{ name = "Ali Pourrahim" }]
-# The contracts themselves are data (JSON). Only the compliance TESTS need a
-# JSON Schema validator — a dev-time dependency, never a runtime one.
-dependencies = []
+# `validate()` ships in the package (consumers call it), so the JSON Schema
+# validator is a genuine runtime dependency of THIS package.
+dependencies = ["jsonschema>=4.0"]
 
 [project.optional-dependencies]
-dev = ["jsonschema>=4.0", "pytest>=8.0", "ruff>=0.6"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[tool.hatch.build.targets.wheel]
+# Ship the whole package dir — including the schema *.json (data) and the
+# conformance checkers — so consumers get schemas + validate + rule A/B enforcers.
+packages = ["decision_os_contracts"]
 
 [tool.ruff]
 line-length = 100
@@ -21,7 +30,6 @@ target-version = "py311"
 select = ["E", "F", "I", "B", "UP"]
 
 [tool.ruff.lint.per-file-ignores]
-# Tests embed deliberately-long inline source fixtures as string literals.
 "tests/**" = ["E501"]
 
 [tool.pytest.ini_options]

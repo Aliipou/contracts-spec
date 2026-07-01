@@ -22,7 +22,7 @@ import pytest
 from jsonschema import Draft202012Validator
 
 _ROOT = Path(__file__).resolve().parent.parent
-_SCHEMAS = _ROOT / "schemas"
+_SCHEMAS = _ROOT / "decision_os_contracts" / "schemas"
 _EXAMPLES = _ROOT / "examples"
 
 # example file  ->  schema file
