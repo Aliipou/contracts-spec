@@ -1,0 +1,13 @@
+{
+  "event_id": "evt-000777",
+  "ts": "2026-07-01T12:04:59Z",
+  "type": "threat_assessment",
+  "source": "fdk-research",
+  "action_ref": "n-0442",
+  "payload": {
+    "class": "suspicious",
+    "score": 0.78,
+    "signals": ["capability-probing", "off-purpose-data-access"],
+    "note": "advisory only — the kernel decides CONTAIN, not this event"
+  }
+}

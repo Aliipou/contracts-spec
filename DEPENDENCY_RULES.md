@@ -44,6 +44,19 @@ Every message crossing a repo boundary MUST validate against the corresponding
 *Enforced by:* schema-validation tests in each repo against the pinned
 `contracts-spec` version.
 
+## Rule E — no external enforcement (defensive-only)
+
+The Decision OS acts **only within its own execution domain**. No component may
+access, exploit, break, disable, or "hack back" any external system — including a
+detected attacker's. A malicious agent is handled by the `CONTAIN` verdict
+(internal sandboxing/isolation), never by outward action. FDK *classifies* threat
+behavior (advisory `threat_assessment`); it never *neutralizes* anything and the
+kernel alone decides. See `CONTAINMENT.md`.
+
+*Enforced by:* the decision vocabulary itself (there is no "attack"/"disable"
+verdict — only ALLOW/DENY/LIMIT/CONTAIN/DEFER, all internal), plus review that no
+component performs outbound offensive actions.
+
 ## Rule D — audit is write-only
 
 `audit-ledger` accepts appends only. No API edits or deletes an entry. Integrity

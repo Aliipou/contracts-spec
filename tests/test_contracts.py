@@ -29,9 +29,11 @@ _EXAMPLES = _ROOT / "examples"
 _PAIRS = {
     "action.example.json": "action.schema.json",
     "decision.example.json": "decision.schema.json",
+    "decision.contain.example.json": "decision.schema.json",
     "capability_token.example.json": "capability_token.schema.json",
     "audit_entry.example.json": "audit_entry.schema.json",
     "event.example.json": "event.schema.json",
+    "event.threat.example.json": "event.schema.json",
 }
 
 
@@ -57,6 +59,19 @@ def test_every_schema_has_an_example() -> None:
     assert schemas == covered, f"schemas without an example: {schemas - covered}"
 
 
+def test_contain_requires_containment_constraints() -> None:
+    # A CONTAIN decision without the sandbox constraints must be REJECTED — the
+    # defensive verdict is meaningless without its enforced limits.
+    schema = _load(_SCHEMAS / "decision.schema.json")
+    bad = {
+        "verdict": "CONTAIN",
+        "reason": "suspicious",
+        "action_ref": "n-1",
+        "issued_by": "decision-kernel-core",
+    }
+    assert not Draft202012Validator(schema).is_valid(bad)
+
+
 def test_version_is_semver() -> None:
     version = (_ROOT / "VERSION").read_text(encoding="utf-8").strip()
     assert re.fullmatch(r"\d+\.\d+\.\d+", version), f"VERSION not semver: {version!r}"
@@ -65,4 +80,10 @@ def test_version_is_semver() -> None:
 def test_single_decision_vocabulary_frozen() -> None:
     # Guards the most safety-critical invariant against silent drift.
     decision = _load(_SCHEMAS / "decision.schema.json")
-    assert decision["properties"]["verdict"]["enum"] == ["ALLOW", "DENY", "LIMIT", "DEFER"]
+    assert decision["properties"]["verdict"]["enum"] == [
+        "ALLOW",
+        "DENY",
+        "LIMIT",
+        "CONTAIN",
+        "DEFER",
+    ]

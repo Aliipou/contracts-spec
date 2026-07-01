@@ -24,7 +24,7 @@
     "session_id": { "type": "string" },
     "verdict": {
       "type": "string",
-      "enum": ["ALLOW", "DENY", "LIMIT", "DEFER", "allow", "deny", "transform"],
+      "enum": ["ALLOW", "DENY", "LIMIT", "CONTAIN", "DEFER", "allow", "deny", "transform"],
       "description": "The decision recorded. Canonical values are the Decision enum; lowercase allow/deny/transform are accepted for compatibility with the current AuthGate StrEnum and mapped (transform -> LIMIT)."
     },
     "reason": { "type": "string" },

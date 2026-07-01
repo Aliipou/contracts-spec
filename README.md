@@ -48,10 +48,14 @@ Exactly **one** repo — `decision-kernel-core` — may emit a `decision`. Its
 | `ALLOW` | permit the action as submitted |
 | `DENY`  | refuse the action |
 | `LIMIT` | permit, but only a constrained/minimized form (carries obligations, e.g. redacted fields) |
+| `CONTAIN` | permit only inside a locked-down sandbox — the **defensive** response to a suspected-malicious actor (see `CONTAINMENT.md`) |
 | `DEFER` | cannot decide now; escalate to a human / higher authority |
 
 Nothing else — not control-plane, not research, not agents — may produce a
-`decision`. Research emits `suggestion`/`risk_score` events only.
+`decision`. Research emits `suggestion`/`risk_score`/`threat_assessment` events
+only (advisory). `CONTAIN` is strictly **internal** containment; the Decision OS
+never acts on, breaks into, or disables an external system
+(`DEPENDENCY_RULES.md`, rule E).
 
 > `LIMIT` is the canonical name for what the current AuthGate policy engine
 > returns as `TRANSFORM` (an allowed-but-redacted call). The mapping is recorded

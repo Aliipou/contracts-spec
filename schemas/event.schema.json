@@ -16,13 +16,14 @@
         "action_routed",
         "suggestion",
         "risk_score",
+        "threat_assessment",
         "simulation_result",
         "alternative_policy",
         "decision_issued",
         "effect_executed",
         "audit_appended"
       ],
-      "description": "Event kind. 'suggestion'/'risk_score'/'simulation_result'/'alternative_policy' are the ONLY outputs research may emit (advisory). 'decision_issued' references a Decision but is emitted only by the kernel."
+      "description": "Event kind. 'suggestion'/'risk_score'/'threat_assessment'/'simulation_result'/'alternative_policy' are the ONLY outputs research may emit (advisory). 'threat_assessment' is FDK's behavioral classification of an actor/action (benign|suspicious|malicious|unknown) — ADVISORY input to a possible CONTAIN decision, never itself a decision. 'decision_issued' references a Decision but is emitted only by the kernel."
     },
     "source": {
       "type": "string",

@@ -1,0 +1,16 @@
+{
+  "verdict": "CONTAIN",
+  "reason": "actor 'agent:unknown-7' classified suspicious (repeated capability probing); permitting only under sandbox containment",
+  "action_ref": "n-0442",
+  "issued_by": "decision-kernel-core",
+  "obligations": ["sandboxed", "network:none", "no-persistence"],
+  "containment": {
+    "sandbox": true,
+    "network": "none",
+    "allowed_tools": [],
+    "persistence": false,
+    "privilege_escalation": false,
+    "time_limit_seconds": 5
+  },
+  "timestamp": "2026-07-01T12:05:00Z"
+}
