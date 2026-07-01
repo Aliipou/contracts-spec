@@ -1,0 +1,18 @@
+{
+  "_comment": "Example rule-A policy for decision-kernel-core's CI. The kernel is the sole authority and must import nothing but contracts-spec + stdlib; research/agent/control layers are forbidden, and dynamic-import escape hatches are banned.",
+  "rules": [
+    {
+      "roots": ["core", "authgate", "fdk_kernel"],
+      "forbidden": [
+        "fdk_research",
+        "research",
+        "agent_runtime",
+        "control_plane",
+        "sklearn",
+        "torch",
+        "tensorflow"
+      ],
+      "ban_dynamic_import": true
+    }
+  ]
+}

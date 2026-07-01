@@ -50,6 +50,16 @@ CONTAIN **is not**: hacking the agent, destroying an external system, running an
 exploit, taking control of another host, or any outward action. The contained
 actor simply cannot *affect* anything beyond the sandbox.
 
+## CONTAIN is deterministic + policy-driven — never ML-driven
+
+The verdict `CONTAIN` is decided by the deterministic kernel from policy, using
+FDK's `threat_assessment` only as **advisory input**. It is NOT chosen by an ML
+model in the loop. This is a hard design rule, because an ML-driven CONTAIN
+invites three failure modes: model bias, agents perpetually falling back to
+containment, and false-positive explosion. Same reason `LIMIT` is policy-driven:
+a given (policy, action, advisory-signal) triple must always yield the same
+verdict.
+
 ## Why this is the only correct model
 
 You do not control the outside world — only your own execution domain. So the
