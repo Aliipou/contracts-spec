@@ -1,0 +1,21 @@
+name: ci
+
+# contracts-spec ships no logic, but its artifacts are the root of truth for the
+# whole Decision OS. CI guarantees every schema is well-formed and every example
+# validates — so no downstream repo ever pins to a broken contract.
+on: [push, pull_request]
+
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install (dev)
+        run: python -m pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: ruff check tests
+      - name: Validate contracts (schemas + examples + frozen invariants)
+        run: pytest -q

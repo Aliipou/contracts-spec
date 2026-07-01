@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts-spec/decision-os/audit_entry.schema.json",
+  "title": "AuditEntry",
+  "description": "One record in the hash-chained, append-only audit log written by audit-ledger. Mirrors the AuthGate HashChainedAudit persisted entry. write-only: never edited after append. Its head is anchored out-of-process (notary) for tamper-EVIDENCE.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["seq", "ts", "actor", "tool", "action_purpose", "data_labels", "session_id", "verdict", "reason", "layer", "prev_hash", "entry_hash"],
+  "properties": {
+    "seq": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "0-based, gap-free ordinal. A gap/disorder is a tamper signal."
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the entry was recorded (RFC3339 UTC)."
+    },
+    "actor": { "type": "string" },
+    "tool": { "type": "string" },
+    "action_purpose": { "type": "string" },
+    "data_labels": { "type": "array", "items": { "type": "string" } },
+    "session_id": { "type": "string" },
+    "verdict": {
+      "type": "string",
+      "enum": ["ALLOW", "DENY", "LIMIT", "DEFER", "allow", "deny", "transform"],
+      "description": "The decision recorded. Canonical values are the Decision enum; lowercase allow/deny/transform are accepted for compatibility with the current AuthGate StrEnum and mapped (transform -> LIMIT)."
+    },
+    "reason": { "type": "string" },
+    "layer": {
+      "type": "string",
+      "description": "Which enforcement layer produced the verdict (capability|purpose|runtime|kernel)."
+    },
+    "prev_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 hex of the previous entry (64 zeros for genesis)."
+    },
+    "entry_hash": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 hex over the canonical JSON of this entry excluding entry_hash itself."
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "actor": "agent:support-bot",
+  "tool": "send_email",
+  "action_purpose": "support_reply",
+  "data_labels": ["customer_support"],
+  "payload": { "to": "customer@example.com", "subject": "Re: your ticket", "body": "Resolved." },
+  "session_id": "sess-42",
+  "nonce": "n-0001",
+  "capability": "tool:send_email",
+  "abi_version": 1
+}

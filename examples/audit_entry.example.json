@@ -1,0 +1,14 @@
+{
+  "seq": 0,
+  "ts": "2026-07-01T12:00:00Z",
+  "actor": "agent:support-bot",
+  "tool": "send_email",
+  "action_purpose": "support_reply",
+  "data_labels": ["customer_support"],
+  "session_id": "sess-42",
+  "verdict": "LIMIT",
+  "reason": "allowed, but redacted ['ssn']",
+  "layer": "kernel",
+  "prev_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "entry_hash": "9f88d6881576d07460dadc4c00b994f4e19d829f4853d95cf0c0e30c54c34b46"
+}

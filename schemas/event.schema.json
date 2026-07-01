@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://contracts-spec/decision-os/event.schema.json",
+  "title": "Event",
+  "description": "One message on the system event stream. This is how NON-authoritative components (control-plane, fdk-research, agent-runtime) communicate. Crucially, an ALLOW/DENY/LIMIT/DEFER decision is NOT an event type here — only the kernel emits a Decision, via the decision.schema. Research emits 'suggestion'/'risk_score' events, never a decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "ts", "type", "source"],
+  "properties": {
+    "event_id": { "type": "string", "minLength": 1 },
+    "ts": { "type": "string", "format": "date-time" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "action_proposed",
+        "action_routed",
+        "suggestion",
+        "risk_score",
+        "simulation_result",
+        "alternative_policy",
+        "decision_issued",
+        "effect_executed",
+        "audit_appended"
+      ],
+      "description": "Event kind. 'suggestion'/'risk_score'/'simulation_result'/'alternative_policy' are the ONLY outputs research may emit (advisory). 'decision_issued' references a Decision but is emitted only by the kernel."
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Repo/component that emitted the event (e.g. 'agent-runtime', 'fdk-research', 'decision-kernel-core')."
+    },
+    "action_ref": {
+      "type": "string",
+      "description": "The action this event concerns, if any."
+    },
+    "payload": {
+      "type": "object",
+      "default": {},
+      "description": "Event-type-specific data. For 'risk_score': {score: number in [0,1]}. For 'decision_issued': the Decision object. Advisory payloads carry NO authority."
+    }
+  }
+}

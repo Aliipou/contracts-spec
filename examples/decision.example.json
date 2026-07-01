@@ -1,0 +1,9 @@
+{
+  "verdict": "LIMIT",
+  "reason": "allowed, but redacted ['ssn'] (not required for 'support_reply')",
+  "action_ref": "n-0001",
+  "issued_by": "decision-kernel-core",
+  "obligations": ["redacted:ssn", "redacted:content:ssn-pattern"],
+  "transformed_payload": { "to": "customer@example.com", "body": "Your SSN is [REDACTED]." },
+  "timestamp": "2026-07-01T12:00:00Z"
+}

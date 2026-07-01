@@ -1,0 +1,9 @@
+{
+  "token_id": "tok-7f3a9c",
+  "actor": "agent:support-bot",
+  "capability": "tool:send_email",
+  "action_ref": "n-0001",
+  "issued_by": "decision-kernel-core",
+  "expires_at": "2026-07-01T12:00:30Z",
+  "signature": "b1946ac92492d2347c6235b4d2611184b1946ac92492d2347c6235b4d2611184b1946ac92492d2347c6235b4d2611184b1946ac92492d2347c6235b4d2611184"
+}

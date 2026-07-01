@@ -1,0 +1,8 @@
+{
+  "event_id": "evt-000123",
+  "ts": "2026-07-01T12:00:00Z",
+  "type": "risk_score",
+  "source": "fdk-research",
+  "action_ref": "n-0001",
+  "payload": { "score": 0.12, "note": "advisory only — not a decision" }
+}

@@ -1,0 +1,24 @@
+[project]
+name = "contracts-spec"
+version = "0.1.0"
+description = "The root-of-truth contracts (schemas, decision contract, event formats, policy DSL) for the Decision OS. No logic — INPUT to and OUTPUT of the kernel only."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "PolyForm-Noncommercial-1.0.0" }
+authors = [{ name = "Ali Pourrahim" }]
+# The contracts themselves are data (JSON). Only the compliance TESTS need a
+# JSON Schema validator — a dev-time dependency, never a runtime one.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["jsonschema>=4.0", "pytest>=8.0", "ruff>=0.6"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
