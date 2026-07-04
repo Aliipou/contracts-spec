@@ -18,7 +18,7 @@ from typing import Any
 
 from .conformance.validate import is_valid, validate
 
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 
 _SCHEMAS = Path(__file__).resolve().parent / "schemas"
 

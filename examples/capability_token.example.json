@@ -3,6 +3,7 @@
   "actor": "agent:support-bot",
   "capability": "tool:send_email",
   "action_ref": "n-0001",
+  "action_binding": "3b1f2c9d4e5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c",
   "issued_by": "decision-kernel-core",
   "expires_at": "2026-07-01T12:00:30Z",
   "signature": "b1946ac92492d2347c6235b4d2611184b1946ac92492d2347c6235b4d2611184b1946ac92492d2347c6235b4d2611184b1946ac92492d2347c6235b4d2611184"
