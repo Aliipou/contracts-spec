@@ -1,24 +1,32 @@
 name: ci
 
-# contracts-spec is now the installable `decision-os-contracts` package (the root
-# of truth). CI installs it editable, validates every schema/example, and runs
-# the shared conformance enforcers against itself.
+# contracts-spec is the installable `decision-os-contracts` package (the root of
+# truth). CI installs it editable, lints + type-checks it, validates every
+# schema/example, and runs the shared conformance enforcers against itself.
 on: [push, pull_request]
 
 jobs:
   contracts:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: "${{ matrix.python-version }}"
+      - run: python -m pip install --upgrade pip
       - name: Install (editable, with dev tools)
-        run: python -m pip install -e ".[dev]"
+        run: pip install -e ".[dev]" mypy
       - name: Lint (ruff)
-        run: ruff check decision_os_contracts tests
+        run: ruff check .
+      - name: Types (mypy)
+        run: mypy decision_os_contracts
       - name: Validate contracts (schemas + examples + frozen invariants)
         run: pytest -q
+        env:
+          AUTHGATE_BACKEND: python
       - name: Self-check enforcers (rules A & B run clean on this repo)
         run: |
           python -m decision_os_contracts.conformance.check_authority --roots decision_os_contracts/conformance

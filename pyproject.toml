@@ -32,6 +32,11 @@ select = ["E", "F", "I", "B", "UP"]
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["E501"]
 
+[tool.mypy]
+python_version = "3.11"
+# jsonschema ships no type stubs; ignore the one untyped-import.
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
