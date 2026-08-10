@@ -290,3 +290,52 @@ checks (capability layer, runtime monitor, notary) are not yet expressed as eval
 — only its policy verdict is. The remaining blocker before any deletion is
 §7 (obligations do not yet compose): an engine whose verdict carries a redaction
 cannot be folded in without losing it.
+
+## 11. FALSIFIED — "an untrusted evaluator can at worst deny" (2026-08-10)
+
+§9 and ADR-0001 claim that because evaluators are antitone, a malicious or buggy
+evaluator can at worst **deny (a DoS)** and can **never** cause an unauthorized
+execution. **That claim is false as implemented, and is withdrawn until the code
+earns it.** A red-team pass produced runnable exploits (`decision-os-min/tests/
+test_redteam_composition.py`, 31 tests), independently reproduced. The three that
+matter, all verified by hand:
+
+1. **Field injection.** `more_restrictive` adopts the *entire* dict an evaluator
+   returns. An evaluator that returns an **off-lattice** verdict (`"deny"` —
+   lowercase, i.e. a plausible neighbouring dialect) carrying a forged `token_id`
+   and `capability` gets those fields **signed by the kernel**, and the PEP gates on
+   a blacklist (`verdict in (DENY, DEFER) or not token_id`) rather than on
+   `verdict in PERMITTING`. Result: composed verdict non-permitting, no token
+   minted by the kernel — **and the tool still runs**, with `verify()` accepting the
+   forged decision.
+2. **TOCTOU on the live action.** Evaluators receive the mutable action dict, and
+   `capability` + `action_fingerprint` are computed *after* the evaluator loop. An
+   evaluator that rewrites `action["capability"]`/`["tool"]` and returns `ALLOW`
+   causes a tool the actor was never granted to execute — with a perfectly valid
+   signature and binding, because the fingerprint commits to the *mutated* action.
+3. **Obligation authorship.** `LIMIT` outranks `ALLOW`, so an evaluator "restricting"
+   an action becomes the governing decision and its `transformed_payload` is what
+   executes. A veto-only plugin thereby **chooses the payload** ($1 → $1,000,000)
+   while the signed `action_binding` still commits to the original.
+
+**The diagnosis is precise, and it is not the lattice.** The verdict algebra
+survives falsification: property tests (~85k generated examples) confirm antitone,
+DENY-absorbing, token-iff-permitting, and that no verdict input ever moved the
+kernel below its own authority ruling. What fails is the **plumbing around the
+lattice** — the meet is antitone, the *decision dict* is not. An evaluator
+contributes fields (token, capability, payload, containment, `action_ref`) that
+never enter the meet at all.
+
+**The one invariant that does hold:** no evaluator can override an authority `DENY`
+(rank ties keep the authority decision, and authority seeds the fold).
+
+**Root causes** — R1 `more_restrictive` adopts the plugin's whole dict; R2 unknown
+verdicts *rank* as DENY but are *returned verbatim*, and the PEP blacklists instead
+of whitelisting; R3 evaluators get the live action, and identity fields are derived
+after the loop.
+
+Consequences for §10: the convergence bricks stand as *equivalence* results — they
+say a stacked engine is redundant, and that stacking violates token-mint-terminal.
+They say nothing about plugin containment, and must not be read as evidence for it.
+Brick #2's equivalence test compares the **verdict field only**, which is why it did
+not catch an external `LIMIT` executing with an empty payload.

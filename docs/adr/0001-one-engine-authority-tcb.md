@@ -1,5 +1,14 @@
 # ADR-0001 — One composing kernel; the TCB is Authority; Legitimacy is an untrusted veto plugin
 
+> **STATUS 2026-08-10 — one load-bearing claim of this ADR is FALSIFIED.** The
+> "an untrusted evaluator can at worst deny (a DoS), never cause an unauthorized
+> execution" argument is **withdrawn as a statement about the current code**: three
+> runnable exploits (field injection, TOCTOU on the live action, obligation
+> authorship) produce unauthorized execution from a malicious evaluator. See
+> COMPOSITION.md §11. The *architectural* decision below (one kernel, authority in
+> the TCB, plugins outside it, veto-only) is unchanged and still the target — but it
+> is now a requirement to be earned, not a property the implementation has.
+
 - **Status:** Accepted (decision axis) · **Target** (cross-repo convergence) · with named **Open Questions** (see below)
 - **Living document (v0.1):** the *logical* architecture is mature, but the 3→1
   convergence and obligation composition (COMPOSITION.md §7) are real engineering
