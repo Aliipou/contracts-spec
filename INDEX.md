@@ -25,6 +25,23 @@ Status labels are deliberate and mean what they say:
    effect                 the tool, the API, the machine
 ```
 
+## Folder names are not repository names
+
+Three local working folders are clones of repositories with **different names**. This
+mismatch is not cosmetic: it hid `authgate-kernel` — the verified Rust TCB, and the
+strongest artefact in the stack — from a survey of the working directory, and it let
+that repository's default branch sit 42 commits behind the actual work for two months
+while everything current lived on `feat/theory-gaps`.
+
+| local folder | GitHub repository |
+|---|---|
+| `freedom-kernel-work/` | **`authgate-kernel`** |
+| `freedom-specs-work/` | **`authgate-specs`** |
+| `freedom-theory-work/` | **`freedom-theory`** |
+
+Do not clone these under their repository names alongside the existing folders — you
+will end up with two working copies of one repository and edit the wrong one.
+
 ## Core
 
 | Repo | Layer | What it is |
@@ -33,7 +50,11 @@ Status labels are deliberate and mean what they say:
 | `decision-os-min` | authority + enforcement | The small public reference kernel: single authority, signed decisions bound to action content, one-time capability tokens, hash-chained audit, co-equal veto-only evaluators. |
 | `freedom-decision-kernel` | legitimacy | The legitimacy layer and its formal core, including the Authority Principle (`PRINCIPLE.md`) and the ownership discriminant experiment (`experiments/`). |
 | `authgate-gate` | authority | Purpose-binding authorization gate for agent tool calls. |
-| `freedom-kernel-work` | authority | The verified kernel work (Rust TCB, proof artefacts). |
+| `authgate-kernel` (local folder `freedom-kernel-work/`) | authority | The verified kernel: Rust TCB, **23 Kani harnesses**, **27 Lean theorems** (5 still carrying `sorry`), 3 TLA+ specs, 221 Rust tests. The strongest artefact here, and the one an external reviewer should be pointed at first. |
+| `authgate-specs` (local folder `freedom-specs-work/`) | contracts | Formal RFC specifications for the kernel. |
+| `freedom-theory` (local folder `freedom-theory-work/`) | normative | The theory itself, and the book source. The normative root the rest derives from — not an implementation. |
+| `authrobo` | enforcement | Robotics control plane: capability-gated actuation with an independent safety monitor. Scaffold, deliberately not built out — the cloud-AI wedge comes first. |
+| `qfl` | research | Quantum federated learning sandbox. Research track, no production import. |
 
 ## Enforcement, runtime, ledgers
 
