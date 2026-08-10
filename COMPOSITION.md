@@ -339,3 +339,56 @@ say a stacked engine is redundant, and that stacking violates token-mint-termina
 They say nothing about plugin containment, and must not be read as evidence for it.
 Brick #2's equivalence test compares the **verdict field only**, which is why it did
 not catch an external `LIMIT` executing with an empty payload.
+
+## 12. The fix (2026-08-10) — what §11 costs, and what it buys
+
+§11 stands as the record of what was broken; this section records the repair. Four
+changes in `decision-os-min`, each aimed at one root cause:
+
+**R1 — an evaluator may contribute a verdict and a reason, and nothing else.**
+`compose.sanitize()` filters an evaluator's decision to `EVALUATOR_CONTRIBUTABLE`
+= {`verdict`, `reason`, `action_ref`}, and `action_ref` is then overwritten with the
+kernel's own value. `token_id`, `capability`, `token_expires_at`, `containment`,
+`transformed_payload`, `issued_by`, `action_binding` can no longer be injected. This
+is what makes the antitone argument true of the *decision* and not merely of the
+*meet*.
+
+**R2 — the lattice is closed, and the PEP whitelists.** `compose.normalize()` maps
+anything outside `VERDICTS` to `DENY` *inside* `meet`, so (a) `meet` is commutative
+for arbitrary strings rather than only up to rank, (b) a composed verdict is always
+a lattice member, and (c) a consumer testing `verdict == DENY` can no longer be
+fooled by a neighbouring engine's lowercase dialect. The PEP gate changed from the
+blacklist `verdict in (DENY, DEFER) or not token_id` to the whitelist
+`verdict not in PERMITTING or not token_id`.
+
+**R3 — evaluators cannot touch the action.** Each receives `copy.deepcopy(action)`.
+This closes the TOCTOU escalation (rewriting `capability` so an ungranted tool runs
+under a valid signature) and also stops one evaluator hiding an attribute from the
+next. Cost: one deep copy per evaluator per decision — accepted, because the
+alternative is an argument about which fields are safe to share, and that argument
+is exactly what failed.
+
+**I4 at the kernel boundary.** A raising evaluator becomes `DENY` instead of
+propagating an unstable exception out of `decide()`; a non-mapping return
+(`None`, `42`, `["ALLOW"]`) and an unhashable verdict fail closed. `BaseException`
+is deliberately NOT caught — `KeyboardInterrupt`/`SystemExit` are process shutdown,
+not a verdict.
+
+**A consequence worth stating plainly, because it is a real loss.** An evaluator can
+no longer carry an obligation. A plugin `LIMIT` therefore has no redaction to apply,
+and a `LIMIT` the PEP cannot discharge is now **refused** rather than degraded — the
+old fallback called the tool with an empty payload, which is a *different* effect,
+not a more restrictive one. So a plugin's "restrict" collapses to a clean veto. That
+is correct for a veto-only plugin and it is fail-closed, but it means obligations
+from plugins are unavailable until OBLIGATIONS.md is implemented. Refusing to carry
+an obligation is better than silently honouring an unverified one; it is still a gap,
+not a feature.
+
+**Status of the claim §11 withdrew.** The three root causes are closed against the
+exploits that demonstrated them — verified by hand, independently of the test suite:
+field injection, TOCTOU escalation, and payload authorship all now refuse, while a
+genuine `ALLOW` still executes. That is *evidence the specific attacks are dead*, not
+proof the general claim is now true. ADR-0001's "an untrusted evaluator can at worst
+deny" should be restored only after the exploit suite has been re-pointed at the
+fixed behaviour AND a fresh adversarial pass has failed to find a new escape. Until
+then the banner on ADR-0001 stays.
