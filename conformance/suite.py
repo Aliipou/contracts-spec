@@ -254,9 +254,38 @@ CHECKS: list[tuple[str, str, Callable[[Driver], tuple[Result, str]]]] = [
 ]
 
 
+def liveness(driver: Driver) -> tuple[bool, str]:
+    """Can this target permit ANYTHING at all?
+
+    Without this gate an unreachable or deny-everything service scores passes on every
+    deny-shaped requirement — a switched-off server would be reported as partially
+    conformant, which is worse than no measurement at all. A profile that cannot
+    distinguish "correctly refuses" from "refuses everything" is measuring nothing, so
+    such a run is declared INCONCLUSIVE rather than scored.
+    """
+    driver.reset()
+    driver.grant("agent:live", "send_email")
+    out = driver.act("agent:live", "send_email", {"to": "a@b.test"})
+    if out.permitted or out.executed:
+        return True, "target permits a plainly granted action"
+    return False, (
+        "target refused a plainly granted action — unreachable, misconfigured, or "
+        "deny-everything. Deny-shaped requirements cannot be told apart from a dead "
+        "endpoint, so nothing is reported."
+    )
+
+
 def run(driver: Driver) -> int:
     """Measure one implementation. Returns the number of FAILs."""
     print(f"\nAuthority Enforcement Conformance Profile v0.1 — {driver.name}\n")
+
+    alive, why = liveness(driver)
+    if not alive:
+        print(f"  INCONCLUSIVE — {why}\n")
+        print("  Nothing is reported as PASS or FAIL. Fix the target or the driver and")
+        print("  re-run: a target that refuses everything is not a conformant target.")
+        return 1
+
     counts = {Result.PASS: 0, Result.FAIL: 0, Result.NA: 0}
     for rid, title, check in CHECKS:
         try:
