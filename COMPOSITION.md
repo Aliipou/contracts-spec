@@ -392,3 +392,55 @@ proof the general claim is now true. ADR-0001's "an untrusted evaluator can at w
 deny" should be restored only after the exploit suite has been re-pointed at the
 fixed behaviour AND a fresh adversarial pass has failed to find a new escape. Until
 then the banner on ADR-0001 stays.
+
+## 13. Round 2 — the fix in §12 was not enough (2026-08-10)
+
+A second adversarial pass, given no knowledge of the §12 fix, broke it. The result
+matters more than the bug, so it is recorded rather than quietly patched.
+
+**The break.** `normalize` returned the CALLER'S OBJECT when `verdict in _RANK`
+succeeded — and `in` is a hash/eq lookup. A `str` subclass could therefore make its
+VALUE and its IDENTITY disagree: value `"DENY"`, so `more_restrictive` ranked it
+most-restrictive and let it govern the fold; `__hash__`/`__eq__` impersonating
+`"ALLOW"`, so the kernel's mint gate and the PEP's `verdict in PERMITTING` test both
+said yes. A semantic **veto minted a one-time token and executed the tool**, and
+`verify()` accepted the decision — `json.dumps` serializes a subclass by value, so
+the forgery is self-consistent and no signature check can catch it. Placed before an
+honest evaluator, it also tied at the top rank and had that evaluator's real veto
+discarded.
+
+**Why this is the interesting part.** The *previous* pass found this exact defect and
+filed it as a harmless scope limit, because the liar it happened to construct ranked
+as DENY and was fail-closed. One construction sharper, the same defect was an
+execution. **"Fail-closed for the variant I happened to write" is not fail-closed** —
+and a fix aimed at the demonstrated variant rather than the mechanism will keep
+producing this outcome.
+
+**The fix.** The lookup key comes from `str.__str__` (the base implementation, which
+a `__str__` override cannot lie about) and the return value is the interned lattice
+member, never the caller's object — so an attacker-controlled `__hash__`/`__eq__`
+cannot reach any downstream membership test. `more_restrictive` no longer calls
+`str()` first, which was itself spoofable.
+
+**Second break, same root shape.** `reason` is the one field an evaluator still owns,
+and it flows into both the signed decision and the audit log — which serialized with
+DIFFERENT tolerances (`_canonical` passed `default=str`, the audit path did not). A
+`reason` that signs but will not log made the mandatory audit write raise AFTER the
+tool ran, as a bare `TypeError` that `handle` does not catch: **effect executed, log
+empty**, defeating HB-3's one-entry-per-execute guarantee. Fixed at both ends —
+`sanitize` coerces `reason` to a plain `str`, and the audit path serializes with
+`default=str`.
+
+**What round 2 could NOT break** (each a passing assertion, so the surface is
+demonstrably covered): field injection through `sanitize`; off-lattice plain strings;
+plugin `LIMIT`/`CONTAIN` without an obligation; capability escalation by mutating the
+deep-copied action; injecting `action_ref`/`action_binding`; token replay. And the
+invariant that has survived every round: **an evaluator cannot override the
+AUTHORITY's DENY** — authority seeds the fold at the top rank and ties keep it.
+
+**Still open, and NOT a code defect.** An in-process evaluator can walk the stack
+(`sys._getframe`) to reach the kernel's signing key and forge anything. Python is not
+a sandbox. This is the runtime-isolation question ADR-0001 leaves open, and it means
+the claim in §9 must be stated **conditionally**: veto-only holds against an evaluator
+confined to the `Evaluator` interface, not against arbitrary in-process code. The ADR
+banner stays until that condition is written into the contract normatively.
