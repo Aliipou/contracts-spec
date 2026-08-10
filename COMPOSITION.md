@@ -244,3 +244,49 @@ TCB  (small, verifiable, one unit — Rust-able)
 > **The boundary that is real is *TCB vs plugins*, not *runtime engine A vs engine
 > B*.** Prefer one composing kernel whose only trusted evaluator is authority;
 > everything else is an untrusted, fail-closed, veto-only plugin.
+
+## 10. Convergence bricks (evidence, not intention)
+
+ADR-0001 says the target is ONE host kernel composing an authority evaluator and
+untrusted veto-only plugins, while three engines exist today. Migration is deferred,
+so the risk is that the target stays a slogan. Each "brick" is therefore a *test*
+that retires one stacked engine by proving the composed form is equivalent to it —
+and, where possible, strictly safer.
+
+**Brick #1 — legitimacy (done).** `decision_os_min/evaluators.py::legitimacy` adapts a
+boolean legitimacy policy into a veto-only, fail-closed evaluator.
+`tests/test_evaluators.py` proves the sequential `LegitimacyAuthorityPipeline` and
+`handle(..., evaluators=[legitimacy(policy)])` agree on the whole
+legitimacy × authority truth table (verdict, executed, output). The sequential stage
+is therefore redundant and deletable.
+
+**Brick #2 — a second authority engine (done).** `evaluators.py::authority` adapts an
+external authority engine (e.g. an AuthGate deployment) into a co-equal evaluator.
+`tests/test_authority_convergence.py` proves, over the full truth table:
+
+1. **Equivalence** — composed verdict == the stacked pair's verdict, every cell.
+2. **Commutativity** — evaluator order is semantically empty (§3 restated as a test).
+3. **Non-leak** — this is the part that is not merely tidier. *Stacked*, engine A
+   rules and MINTS a one-time capability before engine B is consulted, so B's refusal
+   arrives after the mint and a live token exists for a refused action. *Composed*,
+   the veto lands before the mint and no token is created. Stacking engines therefore
+   violates the token-mint-is-terminal-commit invariant (I3) by construction;
+   composition satisfies it by construction.
+4. **Fail-closed twice** — a raising engine denies, and a verdict outside the lattice
+   denies rather than being read as permission. The second case is not hypothetical:
+   AuthGate's own dialect is lowercase `allow`/`deny`/`transform`, so vocabulary drift
+   between two engines is exactly the shape of an accidental grant. Dialect mapping is
+   the adapter's job and is deliberately kept out of this package.
+5. **Veto-only** — an external `ALLOW` cannot resurrect the host's `DENY`, and the
+   host's reason survives composition.
+6. **Real parity** — the same, against the actual `authgate_gate.PolicyEngine`, so the
+   claim is about the neighbouring engine and not only about a stand-in. The test skips
+   where that sibling repo is not importable; this package still depends on nothing but
+   stdlib + `cryptography`.
+
+**Honest status.** These bricks show the stacked paths are *redundant*. They are not
+themselves the migration: no engine has been deleted, and AuthGate's distinctive
+checks (capability layer, runtime monitor, notary) are not yet expressed as evaluators
+— only its policy verdict is. The remaining blocker before any deletion is
+§7 (obligations do not yet compose): an engine whose verdict carries a redaction
+cannot be folded in without losing it.

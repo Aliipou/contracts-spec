@@ -67,6 +67,26 @@ hash-chained audit + spent-store), refactor AuthGate's distinctive checks
 (capability/purpose/runtime) into an authority evaluator, demote FDK to a
 legitimacy plugin, and delete the duplicated orchestration. Not done in this ADR.
 
+### Convergence bricks — progress (updated 2026-08-10)
+
+Rather than migrate in one step, each stacked engine is first shown to be
+*redundant* by a test proving the composed form matches it. See COMPOSITION.md §10.
+
+| Brick | Retires | Evidence | Status |
+|---|---|---|---|
+| #1 legitimacy adapter | the sequential `LegitimacyAuthorityPipeline` stage | `tests/test_evaluators.py` — full truth table, identical verdict/executed/output | done |
+| #2 authority adapter | a second *stacked* authority engine | `tests/test_authority_convergence.py` — equivalence, commutativity, capability-non-leak, fail-closed on dialect drift, real `authgate_gate` parity | done |
+| #3 AuthGate's distinctive checks as evaluators (capability layer, runtime monitor, notary) | authgate-gate as a full engine | — | not started |
+| #4 obligation composition | the blocker for deleting anything | — | design only (see COMPOSITION.md §7) |
+
+Brick #2 produced one result worth promoting out of the test file: stacking two
+engines does not merely duplicate code, it **violates the token-mint-is-terminal
+invariant by construction** — engine A mints a one-time capability before engine B
+can refuse. That makes convergence a correctness argument, not a tidiness one.
+
+**Nothing has been deleted yet**, and no engine has been migrated. Redundancy proven
+≠ migration done.
+
 ## Consequences
 
 **Positive:** minimal architecture (Occam); TCB minimization; extensible to `n`
