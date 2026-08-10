@@ -9,6 +9,35 @@ repository depends on this one; **this one depends on nothing.**
 It contains **no logic** — no enforcement, no ML, no orchestration. Only the
 INPUT to the kernel and the OUTPUT of the kernel, and nothing else.
 
+## What is new — 2026-08-10
+
+**`conformance/` — an executable conformance profile.** A specification document does
+not make a standard; a standard is requirements precise enough that an *independent*
+implementation can be run against them. Ten requirements (AE-1…AE-10) derived from the
+No-Amplification axiom, an implementation-agnostic driver seam, and one real driver.
+
+The load-bearing rule: a requirement whose capability an implementation does not claim
+reports **N/A, never PASS**. A suite that scores unimplemented features as conformant
+measures nothing.
+
+`conformance/PROFILE.md` §2a attributes **every** requirement to its prior art —
+Saltzer & Schroeder 1975, Miller's *Robust Composition* 2006, Anderson 1972 / Rushby
+1981 / seL4, Macaroons NDSS 2014, RFC 7800 and DPoP, Haber & Stornetta 1991 — and states
+plainly that the profile claims **no new security principle**. If such a profile already
+exists, this one is redundant and should be retired in its favour.
+
+**`COMPOSITION.md` §11–§13 — the record of a claim being falsified, fixed, and falsified
+again.** §11 withdraws "an untrusted evaluator can at worst deny"; §12 documents the fix
+and what it cost; §13 records that a second red team broke that fix, and why the lesson
+matters more than the bug: *fail-closed for the variant you happened to write is not
+fail-closed*.
+
+**`OBLIGATIONS.md`** — the design for composing obligations, with an explicit novelty
+verdict of **none**: an engineering integration of XACML obligations, Lupu & Sloman
+conflict resolution, CRDT/OT commutativity, and the k-anonymity generalization lattice.
+
+**`INDEX.md`** — a map of every repository in the stack, with honest status labels.
+
 ## Why this exists first
 
 If contracts are not frozen before code, every downstream repo drifts and the

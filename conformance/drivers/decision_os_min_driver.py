@@ -56,7 +56,8 @@ class DecisionOSMinDriver:
 
         if not self._audit.exists():
             return []
-        return [json.loads(x) for x in self._audit.read_text(encoding="utf-8").splitlines() if x.strip()]
+        lines = self._audit.read_text(encoding="utf-8").splitlines()
+        return [json.loads(x) for x in lines if x.strip()]
 
     # --- profile operations ----------------------------------------------
     def grant(self, actor: str, tool: str) -> None:
