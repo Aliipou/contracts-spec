@@ -100,6 +100,39 @@ happened: no effect without a record, no record of an effect that did not occur,
 the recorded reason MUST be the reason the decision was made. A failure to write the
 record MUST NOT leave an effect already performed.
 
+## 2a. Prior art — none of these requirements is new
+
+Stated explicitly so no reader mistakes this profile for a contribution to access
+control. Every requirement is an established result; the profile's only job is to
+make them **measurable for one specific setting** (autonomous-agent tool calls).
+
+| Req | Established as |
+|---|---|
+| AE-1 default deny | Saltzer & Schroeder 1975, "fail-safe defaults" |
+| AE-2 no amplification | **Miller, *Robust Composition*, 2006** — authority is not amplified by composition, only by explicit delegation (POLA). Also XACML 3.0 `deny-overrides` |
+| AE-3 constraint inputs are veto-only | The same result, plus Anderson's reference monitor (1972) and the separation-kernel line (Rushby 1981; Klein et al., seL4, 2009) |
+| AE-4 attenuation | **Macaroons** (Birgisson et al., NDSS 2014) — caveats can only attenuate; **Biscuit** for the offline/Datalog form |
+| AE-5 temporal attenuation | Macaroons (expiry caveats); capability expiry generally |
+| AE-6 revocation monotonicity | Standard in capability systems (KeyKOS, E); OAuth token revocation |
+| AE-7 action binding | Sender-constrained / proof-of-possession tokens — RFC 7800, DPoP (RFC 9449) |
+| AE-8 single use | Replay prevention via `jti`/nonce — OAuth, Kerberos |
+| AE-9 non-bypass | Complete mediation, Saltzer & Schroeder 1975 |
+| AE-10 audit fidelity | Baseline compliance/forensics requirement; tamper-evident logs (Haber & Stornetta 1991) |
+
+**Therefore this profile claims no new security principle.** It claims that these
+requirements have not been assembled into an executable conformance profile for
+agent tool calls, and that a gate for that setting should be measured against all ten
+rather than a subset. If someone has already published such a profile, this one is
+redundant and should be retired in its favour.
+
+Neighbouring work that already does part of this well, and should be adopted rather
+than reinvented: **AWS Cedar** (formally verified authorization, Lean proofs),
+**OPA/Rego** (policy-as-code, CNCF), **Zanzibar/OpenFGA/SpiceDB** (ReBAC at scale),
+**SPIFFE/SPIRE** (workload identity). In particular, AE-4 and AE-5 should be
+satisfied by adopting a macaroon/biscuit-style attenuation format — inventing a new
+delegation format here would be the one place where "not invented here" would
+directly cost credibility.
+
 ## 3. Reporting
 
 Each requirement returns exactly one of:
