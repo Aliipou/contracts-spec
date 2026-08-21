@@ -1,5 +1,7 @@
 # contracts-spec — the root of truth for the Decision OS
 
+**Live (graph):** [https://ali-contracts-spec.vercel.app](https://ali-contracts-spec.vercel.app)
+
 **Contracts are the system. Code is just implementations.**
 
 This repository defines the *only* shared truth of the Decision OS: the schemas,
