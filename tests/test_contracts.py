@@ -34,6 +34,7 @@ _PAIRS = {
     "audit_entry.example.json": "audit_entry.schema.json",
     "event.example.json": "event.schema.json",
     "event.threat.example.json": "event.schema.json",
+    "verdict_artifact.example.json": "verdict_artifact.schema.json",
 }
 
 

@@ -1,0 +1,23 @@
+{
+  "artifact_version": "1.1.0",
+  "decision_id": "va-example-deny-001",
+  "verdict": "DENY",
+  "kernel_version": "0.4.0",
+  "constitution_version": "fdk-v1.0-a1-a7",
+  "accepted_inputs": [
+    {
+      "fact_key": "coerces",
+      "fact_value": true,
+      "asserted_by": "proposer",
+      "input_class": "CALLER_FLAG"
+    }
+  ],
+  "constitutional_basis": {
+    "axiom_ids": ["A7"]
+  },
+  "inference_trace": {
+    "rule_ids": ["kernel.forbidden.coerces"]
+  },
+  "action_ref": "candidate-action-001",
+  "epistemic_disclaimer": "This artifact records constitutional behavior conditional on accepted_inputs. It does not certify that accepted inputs match world truth."
+}

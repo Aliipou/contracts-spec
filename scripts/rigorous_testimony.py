@@ -15,7 +15,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 import urllib.error
 import urllib.request
@@ -134,9 +133,16 @@ def gate_fdk_m4_integration(report: Report) -> None:
         return
     sys.path.insert(0, str(fdk_src))
     try:
-        from conformance.verdict_artifact_profile import validate_verdict_artifact_dict
-        from fdk_kernel import AgentType, CandidateAction, Entity, OwnershipGraph, evaluate_legitimacy
+        from fdk_kernel import (
+            AgentType,
+            CandidateAction,
+            Entity,
+            OwnershipGraph,
+            evaluate_legitimacy,
+        )
         from fdk_kernel.model import Resource
+
+        from conformance.verdict_artifact_profile import validate_verdict_artifact_dict
 
         bot = Entity("bot", AgentType.MACHINE)
         co = Entity("co", AgentType.HUMAN)
