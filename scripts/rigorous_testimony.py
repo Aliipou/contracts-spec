@@ -82,8 +82,27 @@ def _run(cmd: list[str], cwd: Path, env: dict | None = None) -> subprocess.Compl
     )
 
 
+def _pytest_basetemp(cwd: Path) -> Path:
+    """Avoid WinError 5 on the default %TEMP%\\pytest-of-* directory."""
+    base = WORKSPACE / ".pytest-tmp" / cwd.name
+    base.mkdir(parents=True, exist_ok=True)
+    return base
+
+
 def gate_pytest(report: Report, name: str, cwd: Path, paths: list[str]) -> None:
-    r = _run([sys.executable, "-m", "pytest", *paths, "-q", "--tb=line"], cwd)
+    basetemp = _pytest_basetemp(cwd)
+    r = _run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            *paths,
+            "-q",
+            "--tb=line",
+            f"--basetemp={basetemp}",
+        ],
+        cwd,
+    )
     tail = (r.stdout + r.stderr).strip().splitlines()[-1] if r.stdout or r.stderr else ""
     report.add(name, r.returncode == 0, tail or f"exit {r.returncode}")
 
