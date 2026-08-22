@@ -72,10 +72,17 @@ class Report:
 
 
 def _run(cmd: list[str], cwd: Path, env: dict | None = None) -> subprocess.CompletedProcess:
+    merged = os.environ.copy()
+    if env:
+        merged.update(env)
+    env_tmp = cwd / ".pytest-tmp" / "env"
+    env_tmp.mkdir(parents=True, exist_ok=True)
+    merged["TMP"] = str(env_tmp)
+    merged["TEMP"] = str(env_tmp)
     return subprocess.run(
         cmd,
         cwd=cwd,
-        env=env,
+        env=merged,
         capture_output=True,
         text=True,
         timeout=300,
