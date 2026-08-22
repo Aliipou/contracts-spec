@@ -1,0 +1,55 @@
+name: deployment-testimony
+
+# Records evidence in GitHub → Environments → Deployments (activity log).
+# Cross-repo gates: contracts-spec + freedom-decision-kernel + decision-os-min.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, feat/composition-contract-and-adr]
+
+jobs:
+  testify:
+    runs-on: ubuntu-latest
+    environment:
+      name: testimony
+      url: https://github.com/${{ github.repository }}/deployments/testimony
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Aliipou/freedom-decision-kernel
+          ref: paradigm/stages-2-9
+          path: freedom-decision-kernel
+
+      - uses: actions/checkout@v4
+        with:
+          repository: Aliipou/decision-os-min
+          ref: main
+          path: decision-os-min
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - run: python -m pip install --upgrade pip
+
+      - name: Install contracts-spec
+        run: pip install -e ".[dev]"
+
+      - name: Install decision-os-min (service extra)
+        run: pip install -e "./decision-os-min[service,dev]"
+
+      - name: Rigorous deployment testimony
+        env:
+          TESTIMONY_WORKSPACE: ${{ github.workspace }}
+          AUTHGATE_BACKEND: python
+        run: |
+          python scripts/rigorous_testimony.py --skip-slow --live-service --json testimony-report.json
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: testimony-report
+          path: testimony-report.json
