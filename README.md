@@ -1,9 +1,11 @@
 # contracts-spec — the root of truth for the Decision OS
 
-> **Canonical ecosystem positioning:** See the root [`POSITIONING.md`](../POSITIONING.md).
+> **Canonical ecosystem positioning:** [`POSITIONING.md`](POSITIONING.md) (this repo —
+> version-controlled). Claim audit: [`CLAIM_AUDIT.md`](CLAIM_AUDIT.md). Repo map:
+> [`ECOSYSTEM_MAP.md`](ECOSYSTEM_MAP.md).
+>
 > "Decision OS" here means the **authority + audit contract plane** for agent tool
-> calls — not a universal moral operating system. See `POSITIONING.md` § "What
-> Decision OS means."
+> calls — not a universal moral operating system.
 
 **Contracts are the system. Code is just implementations.**
 

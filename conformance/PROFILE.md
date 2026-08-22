@@ -150,12 +150,13 @@ not.
 
 ## 4. Honest status of this profile
 
-- **One implementation** has been run against it. A profile validated against a single
-  implementation mostly measures that implementation.
+- **One implementation** has been run against it (`decision-os-min`). A profile
+  validated against a single implementation mostly measures that implementation.
 - The requirements are derived from one project's threat model. They are not the
   product of multi-party review, and no external party has agreed to them.
-- Several requirements (AE-4, AE-5, AE-6) are untested against any implementation
-  that actually supports delegation.
+- As of 2026-08-20 that implementation reports **10 PASS / 0 FAIL / 0 N/A**,
+  including AE-4 and AE-5 via a macaroon-inspired attenuation graph (HMAC-chained
+  first-party caveats; not a full Macaroon or Biscuit stack).
 - Until a second, independently-written gate is measured, this is a **checklist with
   a test runner**, not a standard. That is a statement of where it is, not a
   disparagement of where it could go — the order is implementations first,

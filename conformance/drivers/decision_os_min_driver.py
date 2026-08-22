@@ -6,9 +6,9 @@ implementation's API and reports honestly what the implementation does NOT suppo
 dependent requirements into N/A rather than PASS, which is the only thing that keeps
 a conformance score from being self-congratulatory.
 
-`decision-os-min` has no delegation graph and no expiry hierarchy, so AE-4 and AE-5
-are genuinely out of its scope. It DOES have one-time tokens, action binding, a
-hash-chained audit, and co-equal constraint evaluators.
+As of 2026-08-20 the reference gate claims macaroon-inspired attenuation (AE-4)
+and temporal attenuation (AE-5), in addition to one-time tokens, action binding,
+hash-chained audit, co-equal constraint evaluators, and revocation.
 """
 
 from __future__ import annotations
@@ -17,6 +17,7 @@ import sys
 import tempfile
 import uuid
 from collections.abc import Callable, Sequence
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
@@ -32,24 +33,29 @@ from conformance.suite import Outcome  # noqa: E402
 
 
 class DecisionOSMinDriver:
-    name = "decision-os-min (feat/co-equal-evaluator-composition)"
+    name = "decision-os-min (macaroon-attenuation)"
     capabilities = frozenset(
-        {"constraint_inputs", "one_time", "action_binding", "audit", "revocation"}
+        {
+            "constraint_inputs",
+            "one_time",
+            "action_binding",
+            "audit",
+            "revocation",
+            "delegation",
+            "expiry",
+        }
     )
 
     def __init__(self) -> None:
-        self._grants: dict[str, list[str]] = {}
         self._dir = Path(tempfile.mkdtemp(prefix="conformance-"))
+        self._gate: DecisionOS | None = None
         self.reset()
 
     # --- lifecycle -------------------------------------------------------
     def reset(self) -> None:
-        self._grants = {}
         self._audit = self._dir / f"audit-{uuid.uuid4().hex[:8]}.jsonl"
-
-    def _gate(self) -> DecisionOS:
-        return DecisionOS({"grants": dict(self._grants), "default": "allow"},
-                          audit_path=str(self._audit))
+        # Persistent gate: macaroons live on the kernel; recreating would drop them.
+        self._gate = DecisionOS({"grants": {}, "default": "allow"}, audit_path=str(self._audit))
 
     def _records(self) -> list[dict[str, Any]]:
         import json
@@ -61,10 +67,25 @@ class DecisionOSMinDriver:
 
     # --- profile operations ----------------------------------------------
     def grant(self, actor: str, tool: str) -> None:
-        self._grants.setdefault(actor, []).append(f"tool:{tool}")
+        assert self._gate is not None
+        self._gate.grant(actor, f"tool:{tool}")
 
     def revoke(self, actor: str, tool: str) -> None:
-        self._grants[actor] = [c for c in self._grants.get(actor, []) if c != f"tool:{tool}"]
+        assert self._gate is not None
+        self._gate.revoke(actor, f"tool:{tool}")
+
+    def delegate(self, parent: str, child: str, tools: Sequence[str]) -> None:
+        assert self._gate is not None
+        # Default child ceiling: 1 hour (parent root grants have no expiry, so
+        # this is free). AE-5 tests pass an explicit expiry via delegate_until.
+        self._gate.delegate(parent, child, list(tools), expires_at=datetime.now(UTC) + timedelta(hours=1))
+
+    def delegate_until(
+        self, parent: str, child: str, tools: Sequence[str], expires_at: datetime
+    ) -> None:
+        """Used by AE-5; not part of the minimal Driver protocol but available."""
+        assert self._gate is not None
+        self._gate.delegate(parent, child, list(tools), expires_at=expires_at)
 
     def _tools(self, sink: list) -> dict[str, Callable[[dict[str, Any]], Any]]:
         def make(name: str) -> Callable[[dict[str, Any]], Any]:
@@ -84,6 +105,7 @@ class DecisionOSMinDriver:
         *,
         constraints: Sequence[Callable[[dict[str, Any]], Any]] = (),
     ) -> Outcome:
+        assert self._gate is not None
         sink: list = []
         before = len(self._records())
         action = {
@@ -94,7 +116,7 @@ class DecisionOSMinDriver:
             "payload": dict(payload or {}),
             "nonce": f"n-{uuid.uuid4().hex[:10]}",
         }
-        out = self._gate().handle(action, self._tools(sink), evaluators=list(constraints) or None)
+        out = self._gate.handle(action, self._tools(sink), evaluators=list(constraints) or None)
         return Outcome(
             permitted=out.verdict in ("ALLOW", "LIMIT", "CONTAIN"),
             executed=out.executed,
@@ -106,8 +128,9 @@ class DecisionOSMinDriver:
 
     def tamper_after_authorization(self, actor: str, tool: str) -> Outcome:
         """Authorize one action, then hand the executor a MUTATED action."""
+        assert self._gate is not None
         sink: list = []
-        gate = self._gate()
+        gate = self._gate
         action = {
             "actor": actor,
             "tool": tool,
@@ -120,15 +143,21 @@ class DecisionOSMinDriver:
         tampered = {**action, "payload": {"amount": 1_000_000}}
         try:
             output = gate.executor.execute(tampered, result, self._tools(sink))
-            return Outcome(permitted=True, executed=True, effect_tool=sink[0][0] if sink else None,
-                           effect_payload=sink[0][1] if sink else None, reason=str(output))
+            return Outcome(
+                permitted=True,
+                executed=True,
+                effect_tool=sink[0][0] if sink else None,
+                effect_payload=sink[0][1] if sink else None,
+                reason=str(output),
+            )
         except Exception as exc:
             return Outcome(permitted=True, executed=False, reason=str(exc))
 
     def replay(self, actor: str, tool: str) -> tuple[Outcome, Outcome]:
         """Spend ONE authorization twice."""
+        assert self._gate is not None
         sink: list = []
-        gate = self._gate()
+        gate = self._gate
         action = {
             "actor": actor,
             "tool": tool,
@@ -151,8 +180,9 @@ class DecisionOSMinDriver:
         """Alternate routes to the effect that this implementation exposes."""
 
         def raw_executor_without_a_decision() -> Outcome:
+            assert self._gate is not None
             sink: list = []
-            gate = self._gate()
+            gate = self._gate
             action = {
                 "actor": "agent:x",
                 "tool": "wire_money",
@@ -175,8 +205,11 @@ class DecisionOSMinDriver:
             }
             try:
                 gate.executor.execute(action, forged, self._tools(sink))
-                return Outcome(permitted=False, executed=True,
-                               effect_tool=sink[0][0] if sink else None)
+                return Outcome(
+                    permitted=False,
+                    executed=True,
+                    effect_tool=sink[0][0] if sink else None,
+                )
             except Exception as exc:
                 return Outcome(permitted=False, executed=False, reason=str(exc))
 

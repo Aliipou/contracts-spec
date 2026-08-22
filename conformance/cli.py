@@ -18,6 +18,8 @@ import json
 import sys
 from typing import Any
 
+from .probes import Verdict as PVerdict
+from .probes import run_probes
 from .suite import CHECKS, Result, run
 
 
@@ -51,6 +53,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--token", help="passed to the driver as an auth token, if it takes one")
     p.add_argument("--json", dest="json_out", help="write a machine-readable report here")
     p.add_argument("--list", action="store_true", help="list the requirements and exit")
+    p.add_argument("--probes", action="store_true",
+                   help="also run the attack probes for the candidate failure families")
     args = p.parse_args(argv)
 
     if args.list:
@@ -65,6 +69,17 @@ def main(argv: list[str] | None = None) -> int:
 
     driver = load_driver(args.driver, endpoint=args.endpoint, token=args.token)
     failures = run(driver)
+
+    if args.probes:
+        print("\n" + "-" * 100)
+        print("ATTACK PROBES — candidate failure families (see TAXONOMY_MAP.md)")
+        print("  BROKEN = the attack succeeded.  UNSUPPORTED = no surface; nothing measured.\n")
+        broken = 0
+        for r in run_probes(driver):
+            print(f"  {r.verdict.value:12} {r.id:4} [{r.family}] {r.title:52} {r.detail}")
+            broken += r.verdict is PVerdict.BROKEN
+        print(f"\n  {broken} broken")
+        failures += broken
 
     if args.json_out:
         rows = []

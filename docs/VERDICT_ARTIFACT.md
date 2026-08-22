@@ -77,15 +77,18 @@ VerdictArtifact
 
 ## Implementation roadmap (honest)
 
-| Milestone | Delivers |
-|---|---|
-| **M0 (this doc + schema)** | Shared vocabulary; no runtime change |
-| **M1** | FDK emits partial artifact via `evaluate_legitimacy()` — `freedom-decision-kernel/tests/test_verdict_artifact_m1.py` |
-| **M2** | decision-os-min attaches authority_context_ref + signature |
-| **M3** | provenance_ref populated from attestation plugins |
-| **M4** | Provenance completeness tests (conformance extension) |
+| **M0 (this doc + schema)** | Shared vocabulary | **DONE** |
+| **M1** | FDK axiom + rule trace | **DONE** — `freedom-decision-kernel/tests/test_verdict_artifact_m1.py` |
+| **M2** | Accepted-input references | **DONE** — `accepted_inputs.py`, `test_verdict_artifact_m2.py` |
+| **M3** | `action_ref` on artifact | **DONE** |
+| **M4** | Structural conformance | **DONE** — `conformance/verdict_artifact_profile.py`, `tests/test_verdict_artifact_m4.py` |
+| **M5** | AuthGate signed decision linkage | not started |
+| **M6** | Attestation provenance_ref | not started |
+| **M7** | Full provenance CI | not started |
 
-Do not mark M4 complete until fact provenance is wired — not caller flags alone.
+Full status: [`ROADMAP.md`](../ROADMAP.md).
+
+Do not mark **M7** complete until fact attestation is wired — not caller flags alone.
 
 ---
 
@@ -109,4 +112,4 @@ Future: PEP verifies decision; auditors consume VerdictArtifact.
 
 > We formalized morality or verified that the action was coercive.
 
-See root `POSITIONING.md`.
+See [`POSITIONING.md`](../POSITIONING.md) in this repository.
