@@ -227,6 +227,7 @@ Do not say “we formalized morality.” Say:
 | **Claim audit** | [`CLAIM_AUDIT.md`](CLAIM_AUDIT.md) |
 | **Repo roles** | [`ECOSYSTEM_MAP.md`](ECOSYSTEM_MAP.md) |
 | AE-1…AE-10 | [`conformance/CLAIM.md`](conformance/CLAIM.md) |
+| Verdict artifact | [`docs/VERDICT_ARTIFACT.md`](docs/VERDICT_ARTIFACT.md) |
 | **Roadmap** | [`ROADMAP.md`](ROADMAP.md) |
 | FDK rules | `freedom-decision-kernel/spec/INFERENCE_RULES.md` |
 
