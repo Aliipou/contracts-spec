@@ -6,6 +6,11 @@
 >
 > "Decision OS" here means the **authority + audit contract plane** for agent tool
 > calls — not a universal moral operating system.
+>
+> **Normative constitution (book + explanation):**
+> [Aliipou/freedom-theory](https://github.com/Aliipou/freedom-theory).
+> This repo does not host the book, the philosopher edition, or the legitimacy
+> predicate. It hosts schemas and conformance. Do not put moral justification here.
 
 **Contracts are the system. Code is just implementations.**
 

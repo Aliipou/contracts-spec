@@ -34,7 +34,7 @@ Multi-repo workspace. Each row is an independent git repository unless noted.
 | Repository | Role |
 |---|---|
 | `freedom-decision-kernel` | FDK kernel — frozen A1–A7, M1 VerdictArtifact |
-| `freedom-theory-work` | Optional academic lineage (not product claim) |
+| `freedom-theory-work` | Book + philosopher edition — [Aliipou/freedom-theory](https://github.com/Aliipou/freedom-theory) (normative constitution, not a product claim) |
 | `fdk-research` | Research layer (compass, federation — outside TCB) |
 
 ---

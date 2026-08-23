@@ -52,7 +52,7 @@ will end up with two working copies of one repository and edit the wrong one.
 | `authgate-gate` | authority | Purpose-binding authorization gate for agent tool calls. |
 | `authgate-kernel` (local folder `freedom-kernel-work/`) | authority | The verified kernel: Rust TCB, **23 Kani harnesses**, **27 Lean theorems** (5 still carrying `sorry`), 3 TLA+ specs, 221 Rust tests. The strongest artefact here, and the one an external reviewer should be pointed at first. |
 | `authgate-specs` (local folder `freedom-specs-work/`) | contracts | Formal RFC specifications for the kernel. |
-| `freedom-theory` (local folder `freedom-theory-work/`) | normative | The theory itself, and the book source. The normative root the rest derives from — not an implementation. |
+| `freedom-theory` (local folder `freedom-theory-work/`) | normative | Book + philosopher edition: https://github.com/Aliipou/freedom-theory — A1–A7, justification, sixteen-chapter path. The normative root. Not an implementation. |
 | `authrobo` | enforcement | Robotics control plane: capability-gated actuation with an independent safety monitor. Scaffold, deliberately not built out — the cloud-AI wedge comes first. |
 | `qfl` | research | Quantum federated learning sandbox. Research track, no production import. |
 
